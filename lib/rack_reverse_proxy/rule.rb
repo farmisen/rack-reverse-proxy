@@ -67,6 +67,9 @@ module RackReverseProxy
         @rule = rule
         @env = env
         @path = path
+        if @path && !@path.end_with?('/')
+          @path = path + '/'
+        end
         @has_custom_url = has_custom_url
         @matches = matches
 
