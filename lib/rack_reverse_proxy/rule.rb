@@ -21,7 +21,8 @@ module RackReverseProxy
         has_custom_url,
         path,
         env,
-        matches(path, *args)
+        matches(path, *args),
+        options[:append_slash]
       ).build_uri
     end
 
@@ -31,7 +32,8 @@ module RackReverseProxy
         has_custom_url,
         path,
         env,
-        matches(path, *args)
+        matches(path, *args),
+        options[:append_slash]
       ).transform(response, request_uri)
     end
 
@@ -63,15 +65,13 @@ module RackReverseProxy
 
     # Candidate represents a request being matched
     class Candidate
-      def initialize(rule, has_custom_url, path, env, matches)
+      def initialize(rule, has_custom_url, path, env, matches, append_slash=false)
         @rule = rule
         @env = env
         @path = path
-        if @path && !@path.end_with?('/')
-          @path = path + '/'
-        end
         @has_custom_url = has_custom_url
         @matches = matches
+        @append_slash = append_slash
 
         @url = evaluate(matches.custom_url)
       end
@@ -100,7 +100,13 @@ module RackReverseProxy
       end
 
       def uri_with_path
-        URI.join(url, path)
+        t = if path && @append_slash && !path.end_with?('/')
+          URI.join(url, path + '/')
+        else
+          URI.join(url, path)
+        end
+        puts "PATH2:#{t}"
+        t
       end
 
       def evaluate(url)
