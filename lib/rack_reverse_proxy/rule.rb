@@ -100,13 +100,11 @@ module RackReverseProxy
       end
 
       def uri_with_path
-        t = if path && @append_slash && !path.end_with?('/')
+        if path && @append_slash && !path.end_with?('/')
           URI.join(url, path + '/')
         else
           URI.join(url, path)
         end
-        puts "PATH2:#{t}"
-        t
       end
 
       def evaluate(url)
